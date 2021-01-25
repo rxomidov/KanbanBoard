@@ -28,10 +28,9 @@ const onDragEnd = (result, columns, setColumns) => {
             }
         });
         // localStorage.setItem(`${destColumn.name}`, JSON.stringify(destItems));
-        // console.log(destColumn);
-        // console.log(destItems);
-        // localStorage.removeItem("items", JSON.stringify(destItems));
-        // localStorage.removeItem(`${sourceColumn.name}`, JSON.stringify(destItems));
+        // localStorage.setItem(`${sourceColumn.name}`, JSON.stringify(destItems.splice(destination.index, 0, removed)));
+        // localStorage.removeItem("items");
+        // localStorage.removeItem(`${sourceColumn.name}`);
     } else {
         const column = columns[source.droppableId];
         const copiedItems = [...column.items];
