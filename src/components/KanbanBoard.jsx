@@ -26,7 +26,12 @@ const onDragEnd = (result, columns, setColumns) => {
                 ...destColumn,
                 items: destItems
             }
-        })
+        });
+        // localStorage.setItem(`${destColumn.name}`, JSON.stringify(destItems));
+        // console.log(destColumn);
+        // console.log(destItems);
+        // localStorage.removeItem("items", JSON.stringify(destItems));
+        // localStorage.removeItem(`${sourceColumn.name}`, JSON.stringify(destItems));
     } else {
         const column = columns[source.droppableId];
         const copiedItems = [...column.items];
@@ -46,9 +51,18 @@ function KanbanBoard() {
 
     const initialState = JSON.parse(localStorage
         .getItem("items")) || [];
+    const Tayyorlanmoqda = JSON.parse(localStorage
+        .getItem("Tayyorlanmoqda")) || [];
+    const Tayyor = JSON.parse(localStorage
+        .getItem("Tayyor")) || [];
+    const Yetkazilmoqda = JSON.parse(localStorage
+        .getItem("Yetkazilmoqda")) || [];
+    const Yetkazildi = JSON.parse(localStorage
+        .getItem("Yetkazildi")) || [];
     //console.log(initialState);
     const [items, setItems] = useState(initialState);
-    //console.log(items)
+    console.log(items);
+
     let columnsFromBackend =
         {
             [uuid()]: {
@@ -57,32 +71,34 @@ function KanbanBoard() {
             },
             [uuid()]: {
                 name: "Tayyorlanmoqda",
-                items: []
+                items: Tayyorlanmoqda
             }, [uuid()]: {
                 name: "Tayyor",
-                items: []
+                items: Tayyor
             },
             [uuid()]: {
                 name: "Yetkazilmoqda",
-                items: []
+                items: Yetkazilmoqda
             }, [uuid()]: {
                 name: "Yetkazildi",
-                items: []
+                items: Yetkazildi
             }
         };
+
     const [columns, setColumns] = useState(columnsFromBackend);
-    console.log(columnsFromBackend);
     const [findItem, setFindItem] = useState(null);
+    //console.log(columnsFromBackend);
 
     useEffect(() => {
-        localStorage.setItem("items", JSON.stringify(items))
+        localStorage.setItem("items", JSON.stringify(items));
+        setColumns(columnsFromBackend);
     }, [items]);
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
 
     const handleSubmit = (event) => {
-        //event.preventDefault();
+        event.preventDefault();
         if (!title || !content) {
             return;
         }
@@ -108,6 +124,7 @@ function KanbanBoard() {
     const removeTask = (id) => {
         //console.log(id)
         setItems(items.filter(item => item.id !== id));
+        removeFindItem();
     };
     const openModal = (id) => {
         //console.log("open modal", id);
@@ -134,16 +151,14 @@ function KanbanBoard() {
                                 Ma'lumot: {findItem.content}
                             </div>
                             <div className="item-footer">
-                                <form>
-                                    <button type="submit" onClick={() => removeTask(findItem.id)}
-                                            className="btn btn-outline-danger"
-                                    >Otmen
-                                    </button>
-                                    <button onClick={removeFindItem}
-                                            className="btn btn-outline-success"
-                                    >Yopish
-                                    </button>
-                                </form>
+                                <button onClick={() => removeTask(findItem.id)}
+                                        className="btn btn-outline-danger"
+                                >Bekor Qilish
+                                </button>
+                                <button onClick={removeFindItem}
+                                        className="btn btn-outline-success"
+                                >Yopish
+                                </button>
                             </div>
                         </div>
                     )}
