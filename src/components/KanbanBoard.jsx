@@ -6,50 +6,52 @@ import {itemsFromBackendArray} from "../data/Items";
 
 //console.log(new Date());
 
-const onDragEnd = (result, columns, setColumns) => {
-    if (!result.destination) return;
-    const {source, destination} = result;
-    if (source.droppableId !== destination.droppableId) {
-        const sourceColumn = columns[source.droppableId];
-        const destColumn = columns[destination.droppableId];
-        const sourceItems = [...sourceColumn.items];
-        const destItems = [...destColumn.items];
-        const [removed] = sourceItems.splice(source.index, 1);
-        destItems.splice(destination.index, 0, removed);
-        setColumns({
-            ...columns,
-            [source.droppableId]: {
-                ...sourceColumn,
-                items: sourceItems
-            },
-            [destination.droppableId]: {
-                ...destColumn,
-                items: destItems
-            }
-        });
-        // localStorage.setItem(`${destColumn.name}`, JSON.stringify(destItems));
-        // localStorage.setItem(`${sourceColumn.name}`, JSON.stringify(destItems.splice(destination.index, 0, removed)));
-        // localStorage.removeItem("items");
-        // localStorage.removeItem(`${sourceColumn.name}`);
-    } else {
-        const column = columns[source.droppableId];
-        const copiedItems = [...column.items];
-        const [removed] = copiedItems.splice(source.index, 1);
-        copiedItems.splice(destination.index, 0, removed);
-        setColumns({
-            ...columns,
-            [source.droppableId]: {
-                ...column,
-                items: copiedItems
-            }
-        })
-    }
-};
-
 function KanbanBoard() {
 
+    const onDragEnd = (result, columns, setColumns) => {
+        if (!result.destination) return;
+        const {source, destination} = result;
+        if (source.droppableId !== destination.droppableId) {
+            const sourceColumn = columns[source.droppableId];
+            const destColumn = columns[destination.droppableId];
+            const sourceItems = [...sourceColumn.items];
+            const destItems = [...destColumn.items];
+            const [removed] = sourceItems.splice(source.index, 1);
+            destItems.splice(destination.index, 0, removed);
+            setColumns({
+                ...columns,
+                [source.droppableId]: {
+                    ...sourceColumn,
+                    items: sourceItems
+                },
+                [destination.droppableId]: {
+                    ...destColumn,
+                    items: destItems
+                }
+            });
+            //console.log(removed);
+            setItems(items.filter(item => item.id !== removed.id));
+            localStorage.setItem(`${destColumn.name}`, JSON.stringify(destItems));
+            localStorage.setItem(`${sourceColumn.name}`, JSON.stringify(sourceItems));
+            // localStorage.removeItem("items");
+            // localStorage.removeItem(`${sourceColumn.name}`);
+        } else {
+            const column = columns[source.droppableId];
+            const copiedItems = [...column.items];
+            const [removed] = copiedItems.splice(source.index, 1);
+            copiedItems.splice(destination.index, 0, removed);
+            setColumns({
+                ...columns,
+                [source.droppableId]: {
+                    ...column,
+                    items: copiedItems
+                }
+            })
+        }
+    };
+
     const initialState = JSON.parse(localStorage
-        .getItem("items")) || [];
+        .getItem("Buyurtma")) || [];
     const Tayyorlanmoqda = JSON.parse(localStorage
         .getItem("Tayyorlanmoqda")) || [];
     const Tayyor = JSON.parse(localStorage
@@ -58,9 +60,13 @@ function KanbanBoard() {
         .getItem("Yetkazilmoqda")) || [];
     const Yetkazildi = JSON.parse(localStorage
         .getItem("Yetkazildi")) || [];
-    //console.log(initialState);
     const [items, setItems] = useState(initialState);
+    // const [tayyorlanmoqda, setTayyorlanmoqda] = useState(Tayyorlanmoqda);
+    // const [tayyor, setTayyor] = useState(Tayyor);
+    // const [yetkazilmoqda, setYetkazilmoqda] = useState(Yetkazilmoqda);
+    // const [yetkazildi, setYetkazildi] = useState(Yetkazildi);
     console.log(items);
+    //console.log(initialState);
 
     let columnsFromBackend =
         {
@@ -89,7 +95,13 @@ function KanbanBoard() {
     //console.log(columnsFromBackend);
 
     useEffect(() => {
-        localStorage.setItem("items", JSON.stringify(items));
+        localStorage.setItem("Buyurtma", JSON.stringify(items));
+        setItems(items);
+        // setTayyorlanmoqda(Tayyorlanmoqda);
+        // setTayyor(Tayyor);
+        // setYetkazilmoqda(Yetkazilmoqda);
+        // setYetkazildi(Yetkazildi);
+        // //console.log(items);
         setColumns(columnsFromBackend);
     }, [items]);
 
@@ -103,7 +115,7 @@ function KanbanBoard() {
         }
         setTitle("");
         setContent("");
-        console.log(items);
+        //console.log(items);
     };
 
 
@@ -116,21 +128,33 @@ function KanbanBoard() {
 
     };
     const handleAddTask = (title, content) => {
+        console.log(items)
         setItems([...items,
             {id: uuid(), title: title, content: content}
-        ])
+        ]);
     };
+
     const removeTask = (id) => {
-        //console.log(id)
         setItems(items.filter(item => item.id !== id));
-        removeFindItem();
+        // console.log(yetkazilmoqda);
+        // setTayyorlanmoqda(tayyorlanmoqda.filter(item => item.id !== id));
+        // setTayyor(tayyor.filter(item => item.id !== id));
+        // setYetkazilmoqda(yetkazilmoqda.filter(item => item.id !== id));
+        // setYetkazildi(yetkazildi.filter(item => item.id !== id));
+        const findItem = initialState.find(item => item.id === id);
+        if(!findItem){
+            alert("Bekor qilib bo'laydi, Buyurtmangiz tayyorlanmoqda!")
+        }
     };
     const openModal = (id) => {
         //console.log("open modal", id);
-        const findItem = initialState.find(item => item.id === id);
-        console.log(findItem)
+        const findItem = initialState.find(item => item.id === id)||
+            Tayyorlanmoqda.find(item => item.id === id)||
+            Tayyor.find(item => item.id === id)||
+            Yetkazilmoqda.find(item => item.id === id)||
+            Yetkazildi.find(item => item.id === id);
+        //console.log(findItem)
         setFindItem(findItem);
-        // console.log(findItem);
     };
 
     const removeFindItem = () => {
