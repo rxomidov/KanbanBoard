@@ -3,6 +3,7 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import uuid from "uuid/dist/v4";
 import styled from "styled-components";
 import {itemsFromBackendArray} from "../data/Items";
+import {FaTrashAlt} from "react-icons/all";
 
 //console.log(new Date());
 
@@ -64,8 +65,8 @@ function KanbanBoard() {
     // const [tayyorlanmoqda, setTayyorlanmoqda] = useState(Tayyorlanmoqda);
     // const [tayyor, setTayyor] = useState(Tayyor);
     // const [yetkazilmoqda, setYetkazilmoqda] = useState(Yetkazilmoqda);
-    // const [yetkazildi, setYetkazildi] = useState(Yetkazildi);
-    console.log(items);
+    const [yetkazildi, setYetkazildi] = useState(Yetkazildi);
+    console.log(yetkazildi);
     //console.log(initialState);
 
     let columnsFromBackend =
@@ -87,6 +88,9 @@ function KanbanBoard() {
             }, [uuid()]: {
                 name: "Yetkazildi",
                 items: Yetkazildi
+            }, [uuid()]: {
+                name: <FaTrashAlt/>,
+                items: []
             }
         };
 
@@ -96,11 +100,12 @@ function KanbanBoard() {
 
     useEffect(() => {
         localStorage.setItem("Buyurtma", JSON.stringify(items));
+        //localStorage.setItem("Yetkazildi", JSON.stringify(yetkazildi));
         setItems(items);
         // setTayyorlanmoqda(Tayyorlanmoqda);
         // setTayyor(Tayyor);
         // setYetkazilmoqda(Yetkazilmoqda);
-        // setYetkazildi(Yetkazildi);
+        // setYetkazildi(yetkazildi);
         // //console.log(items);
         setColumns(columnsFromBackend);
     }, [items]);
@@ -140,11 +145,13 @@ function KanbanBoard() {
         // setTayyorlanmoqda(tayyorlanmoqda.filter(item => item.id !== id));
         // setTayyor(tayyor.filter(item => item.id !== id));
         // setYetkazilmoqda(yetkazilmoqda.filter(item => item.id !== id));
-        // setYetkazildi(yetkazildi.filter(item => item.id !== id));
+        console.log(yetkazildi);
+        setYetkazildi(yetkazildi.filter(item => item.id !== id));
         const findItem = initialState.find(item => item.id === id);
         if(!findItem){
             alert("Bekor qilib bo'laydi, Buyurtmangiz tayyorlanmoqda!")
         }
+        removeFindItem();
     };
     const openModal = (id) => {
         //console.log("open modal", id);
@@ -211,7 +218,9 @@ function KanbanBoard() {
                     {Object.entries(columns).map(([id, column]) => {
                             return (
                                 <div className="board-col" key={id}>
-                                    <h5 className="mt-3">{column.name}{" "}({column.items.length})</h5>
+                                    <h5 className="mt-3">{column.name}{" "}
+                                    {column.items.length>0 && (column.items.length)}
+                                    </h5>
                                     <Droppable droppableId={id} key={id}>
                                         {(provided, snapshot) => (
                                             <div className="drag-item"
@@ -329,7 +338,7 @@ const KanbanWrapper = styled.div`
   }
   .drag-item{
     //padding: 0.5rem;
-    width: 250px;
+    width: 200px;
     min-height: 500px;  
   }
   .drop-item{
